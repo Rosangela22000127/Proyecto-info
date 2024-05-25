@@ -1,20 +1,14 @@
 import java.util.*;
 import java.io.*;
+
 /*
-	Utilice esta clase para guardar la informacion de su
-	AFN. NO DEBE CAMBIAR LOS NOMBRES DE LA CLASE NI DE LOS 
-	METODOS que ya existen, sin embargo, usted es libre de 
-	agregar los campos y metodos que desee.
+    Utilice esta clase para guardar la informacion de su
+    AFN. NO DEBE CAMBIAR LOS NOMBRES DE LA CLASE NI DE LOS 
+    METODOS que ya existen, sin embargo, usted es libre de 
+    agregar los campos y metodos que desee.
 */
 
 public class AFN {
-	/*
-	 * Implemente el constructor de la clase AFN
-	 * que recibe como argumento un string que
-	 * representa el path del archivo que contiene
-	 * la informacion del AFN (i.e. "Documentos/archivo.AFN").
-	 * Puede utilizar la estructura de datos que desee
-	 */
 	private int[] estadosFinales;
 	private String[] alfabeto;
 	private int estados;
@@ -61,12 +55,56 @@ public class AFN {
 		}
 	}
 
-	/*
-	 * Implemente el metodo accept, que recibe como argumento
-	 * un String que representa la cuerda a evaluar, y devuelve
-	 * un boolean dependiendo de si la cuerda es aceptada o no
-	 * por el AFN. Recuerde lo aprendido en el proyecto 1.
-	 */
+	public static void convertirDesdeGLD(String archivoEntrada, String archivoSalida) {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(archivoEntrada));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(archivoSalida));
+
+			// Leer los símbolos no terminales
+			String[] noTerminales = reader.readLine().split(",");
+			// Leer los símbolos terminales (alfabeto)
+			String[] alfabeto = reader.readLine().split(",");
+			// Leer el símbolo inicial
+			String simboloInicial = reader.readLine();
+			// Leer las reglas de producción
+			String regla;
+			List<String> producciones = new ArrayList<>();
+			while ((regla = reader.readLine()) != null) {
+				producciones.add(regla);
+			}
+
+			// Escribir el alfabeto en la primera línea
+			writer.write(String.join(",", alfabeto));
+			writer.newLine();
+			// Escribir la cantidad de estados (número de no terminales + 1)
+			writer.write(Integer.toString(noTerminales.length + 1));
+			writer.newLine();
+			// Escribir los estados finales (el último estado)
+			writer.write(Integer.toString(noTerminales.length));
+			writer.newLine();
+			// Escribir las transiciones lambda
+			for (int i = 0; i <= noTerminales.length; i++) {
+				writer.write("," + i);
+			}
+			writer.newLine();
+
+			// Escribir las transiciones para cada símbolo del alfabeto
+			for (String terminal : alfabeto) {
+				writer.write(terminal);
+				for (int i = 0; i < noTerminales.length; i++) {
+					writer.write(",0");
+				}
+				writer.newLine();
+			}
+
+			// Cerrar los lectores y escritores
+			reader.close();
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public boolean accept(String string) {
 		Set<Integer> estadosActuales = new HashSet<>();
 		estadosActuales.add(1); // Agregar el estado inicial
@@ -143,11 +181,6 @@ public class AFN {
 		return false;
 	}
 
-	/*
-	 * Implemente el metodo toAFD. Este metodo debe generar un archivo
-	 * de texto que contenga los datos de un AFD segun las especificaciones
-	 * del proyecto.
-	 */
 	public void toAFD(String afdPath) {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(afdPath));
@@ -199,18 +232,13 @@ public class AFN {
 		}
 	}
 
-	/*
-	 * El metodo main debe recibir como primer argumento el path
-	 * donde se encuentra el archivo ".afd", como segundo argumento
-	 * una bandera ("-f" o "-i"). Si la bandera es "-f", debe recibir
-	 * como tercer argumento el path del archivo con las cuerdas a
-	 * evaluar, y si es "-i", debe empezar a evaluar cuerdas ingresadas
-	 * por el usuario una a una hasta leer una cuerda vacia (""), en cuyo
-	 * caso debe terminar. Tiene la libertad de implementar este metodo
-	 * de la forma que desee.
-	 */
+	public static void main(String[] args) {
+		//Quitar antes de entrega.
+		if (args.length < 2) {
+			System.out.println("Uso: java AFN 'archivo_entrada.gld' 'archivo_salida.afn'");
+			System.exit(1);
+		}
 
-	public static void main(String[] args) throws Exception {
-
+		convertirDesdeGLD(args[0], args[1]);
 	}
 }
